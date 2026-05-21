@@ -1,52 +1,85 @@
 package com.cursodevjava.javaproject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController // Diz ao Spring que esta classe responde a requisições Web
-@RequestMapping("/api") // Prefixo para todas as rotas (ex: localhost:8080/api/login)
-@CrossOrigin(origins = "*") // SUPER IMPORTANTE: Permite que seu HTML local acesse o Java sem dar erro de CORS
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "*") // Permite a conexão com seu HTML local
 public class AuthController {
 
-    // 1. DTO (Data Transfer Object) para receber os dados do Cadastro do Front-end
+    // Injeta o repositório para podermos acessar o PostgreSQL
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    // ==========================================
+    // DTOs (Classes para receber dados do Front)
+    // ==========================================
     public static class CadastroRequest {
         public String nome;
         public String email;
         public String senha;
     }
 
-    // ROTA DE CADASTRO
-    @PostMapping("/cadastro")
-    public ResponseEntity<String> cadastrar(@RequestBody CadastroRequest request) {
-        // Valida se veio algo vazio
-        if (request.nome == null || request.email == null || request.senha == null) {
-            return ResponseEntity.badRequest().body("Todos os campos são obrigatórios.");
-        }
-
-        // Aqui no futuro você vai salvar no Banco de Dados. 
-        // Por enquanto, vamos apenas simular o sucesso e devolver uma resposta HTTP 200 (OK).
-        return ResponseEntity.ok("Cadastro bem-sucedido! Bem-vindo, " + request.nome + "!");
-    }
-
-    // 2. DTO para receber os dados de Login do Front-end
     public static class LoginRequest {
         public String email;
         public String senha;
     }
 
+    // ==========================================
+    // ROTA DE CADASTRO
+    // ==========================================
+    @PostMapping("/cadastro")
+    public ResponseEntity<String> cadastrar(@RequestBody CadastroRequest request) {
+        // 1. Validação básica
+        if (request.nome == null || request.email == null || request.senha == null) {
+            return ResponseEntity.badRequest().body("Todos os campos são obrigatórios.");
+        }
+
+        // 2. Verifica se o e-mail já existe no banco de dados
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(request.email);
+        if (usuarioExistente.isPresent()) {
+            return ResponseEntity.badRequest().body("Este e-mail já está em uso.");
+        }
+
+        // 3. Prepara a entidade e salva no banco de dados
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNome(request.nome);
+        novoUsuario.setEmail(request.email);
+        novoUsuario.setSenha(request.senha); 
+        
+        // Em um projeto real, criptografaríamos a senha aqui antes de salvar!
+        usuarioRepository.save(novoUsuario);
+
+        return ResponseEntity.ok("Cadastro bem-sucedido! Bem-vindo ao Olimpo, " + request.nome + "!");
+    }
+
+    // ==========================================
     // ROTA DE LOGIN
+    // ==========================================
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        // 1. Validação básica
         if (request.email == null || request.senha == null) {
             return ResponseEntity.badRequest().body("Campos obrigatórios faltando.");
         }
 
-        // Simulação básica de verificação de login (depois você trocará por uma busca no banco)
-        if (request.email.equals("admin@teste.com") && request.senha.equals("Senha123")) {
-            return ResponseEntity.ok("Login bem-sucedido!");
-        } else {
-            // Retorna erro 401 (Não Autorizado) se a senha estiver errada
-            return ResponseEntity.status(401).body("Credenciais inválidas.");
+        // 2. Busca o usuário no banco de dados pelo e-mail
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(request.email);
+
+        // 3. Verifica se encontrou o usuário e se a senha bate
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            
+            if (usuario.getSenha().equals(request.senha)) {
+                return ResponseEntity.ok("Login bem-sucedido! Bem-vindo de volta, " + usuario.getNome() + "!");
+            }
         }
+
+        // Se o e-mail não existir ou a senha estiver errada:
+        return ResponseEntity.status(401).body("Credenciais inválidas.");
     }
 }

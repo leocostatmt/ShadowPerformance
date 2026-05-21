@@ -78,24 +78,92 @@ registerForm.addEventListener('submit', (event) => {
     // Se houver erros, interrompe a função aqui
     if (hasError) return;
     
-    // Se passar por todas as validações:
-    console.log('Validação aprovada! Dados prontos para envio ao back-end.');
+    // Se passar por todas as validações (substitua o código a partir daqui):
+    console.log('Validação aprovada! A enviar dados para a API Java...');
     
-    // Aqui você pode adicionar um alert() temporário para confirmar que funcionou, ou fazer o fetch() para a API.
-    // alert("Cadastro validado com sucesso!");
+    // 1. Criamos um objeto com os nomes EXATAMENTE iguais ao da sua classe CadastroRequest no Java
+    const dadosParaJava = {
+        nome: document.getElementById('name').value,
+        email: regPasswordInput.form.querySelector('#reg-email').value, // ou document.getElementById('reg-email').value
+        senha: passwordValue // Variável que já validámos antes
+    };
+
+    // 2. Usamos o Fetch para enviar os dados para o Spring Boot (assumindo que o Java corre na porta 8080)
+    fetch('http://localhost:8080/api/cadastro', {
+        method: 'POST', // Método de envio
+        headers: {
+            'Content-Type': 'application/json' // Dizemos ao Java que estamos a enviar um JSON
+        },
+        body: JSON.stringify(dadosParaJava) // Transformamos o objeto Javascript em texto JSON
+    })
+    .then(resposta => {
+        // Verifica se o Java devolveu sucesso (status 200 OK)
+        if (resposta.ok) {
+            return resposta.text();
+        } else {
+            throw new Error('Erro ao tentar registar. O e-mail poderá já estar em uso.');
+        }
+    })
+    .then(mensagemSucesso => {
+        // Se correu bem, mostramos a mensagem do Java e reencaminhamos para o Login
+        alert(mensagemSucesso);
+        registerForm.reset(); // Limpa os campos do formulário
+        switchView(registerView, loginView, 'Olympus Pass'); // Volta para a tela de login
+    })
+    .catch(erro => {
+        // Se deu erro (ex: servidor desligado ou email duplicado)
+        console.error('Erro na requisição:', erro);
+        alert(erro.message);
+    });
 });
 
-// ==========================================
-// 4. LIMPEZA DE ERROS EM TEMPO REAL
-// ==========================================
-// Remove os alertas visuais assim que o usuário volta a digitar
 
-regPasswordInput.addEventListener('input', () => {
-    regPasswordError.classList.add('hidden');
-    regPasswordInput.style.borderColor = '';
-});
 
-confirmPasswordInput.addEventListener('input', () => {
-    confirmError.classList.add('hidden');
-    confirmPasswordInput.style.borderColor = '';
+// Blur background ao focar nos campos de senha
+
+
+
+// Capturando o formulário de Login
+const loginForm = document.getElementById('loginForm');
+const loginEmailInput = document.getElementById('email');
+const loginPasswordInput = document.getElementById('password');
+
+loginForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Impede o recarregamento da página
+
+    const dadosLogin = {
+        email: loginEmailInput.value,
+        senha: loginPasswordInput.value
+    };
+
+    console.log('A tentar fazer login...');
+
+    fetch('http://localhost:8080/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dadosLogin)
+    })
+    .then(async resposta => {
+        const mensagem = await resposta.text();
+        
+        if (resposta.ok) {
+            // Sucesso! O Java retornou status 200
+            alert(mensagem); // Mostra o "Bem-vindo de volta..."
+            
+            // Guarda no navegador que o utilizador está autenticado
+            localStorage.setItem('olympus_auth', 'true');
+            
+            // Redireciona para a nova tela Home
+            window.location.href = 'home.html';
+        } else {
+            // Falha (senha errada ou e-mail não existe)
+            alert(mensagem); // Mostra o "Credenciais inválidas"
+        }
+    })
+    .catch(erro => {
+        console.error('Erro de conexão:', erro);
+        alert('Erro ao tentar conectar com o servidor.');
+    });
 });
