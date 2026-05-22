@@ -119,8 +119,7 @@ registerForm.addEventListener('submit', (event) => {
 
 
 
-// Blur background ao focar nos campos de senha
-
+// 4. Blur background ao focar nos campos de senha
 
 
 // Capturando o formulário de Login
@@ -165,5 +164,35 @@ loginForm.addEventListener('submit', (event) => {
     .catch(erro => {
         console.error('Erro de conexão:', erro);
         alert('Erro ao tentar conectar com o servidor.');
+    });
+});
+
+
+
+// ==========================================
+// 5. LÓGICA DE VISUALIZAR SENHA (ÍCONE DE OLHO)
+// ==========================================
+
+// Seleciona todos os botões de visualizar senha
+const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+
+// Código dos SVGs para alternar
+const iconeOlhoAberto = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const iconeOlhoFechado = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+
+togglePasswordBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Pega o ID do input correspondente através do atributo data-target do HTML
+        const targetId = this.getAttribute('data-target');
+        const inputElement = document.getElementById(targetId);
+
+        // Alterna entre password e text
+        if (inputElement.type === 'password') {
+            inputElement.type = 'text';
+            this.innerHTML = iconeOlhoAberto; // Muda para o ícone sem o risco
+        } else {
+            inputElement.type = 'password';
+            this.innerHTML = iconeOlhoFechado; // Volta para o ícone com o risco
+        }
     });
 });

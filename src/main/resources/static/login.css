@@ -120,6 +120,38 @@ body::before {
     text-decoration: underline;
 }
 
+
+/* Posicionamento do ícone de senha */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    /* Dá um espaço extra na direita para o texto não ficar por baixo do ícone */
+    padding-right: 40px; 
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+/* Fica laranja quando passa o mouse por cima */
+.toggle-password:hover {
+    color: #ff6b00;
+}
+
 /* Animação de Fade-in para a troca de telas */
 .fade {
     animation: fadeIn 0.4s ease-in-out;
