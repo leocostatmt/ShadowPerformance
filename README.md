@@ -13,12 +13,12 @@ Um sistema completo de e-commerce e gestão voltado para entusiastas automotivos
 ## 🛠️ Tecnologias Utilizadas
 
 **Front-end:**
-- JavaScript / [React ou framework de sua escolha]
-- [Tailwind CSS ou outra biblioteca de estilos]
+- JavaScript
+- HTML5 e CSS3
 
 **Back-end:**
-- Java / [Spring Boot ou framework de sua escolha]
-- [PostgreSQL ou MySQL] para banco de dados relacional
+- Java Spring Boot
+- PostgreSQL
 
 **Qualidade e Testes (QA):**
 - **Cypress:** Testes automatizados de interface (E2E) e fluxos de usuário.
@@ -36,4 +36,4 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em su
 
 **1. Clone o repositório:**
 ```bash
-git clone [https://github.com/](https://github.com/)[seu-usuario]/ShadowPerformance.git
+git clone [https://github.com/](https://github.com/)[leocostatmt]/ShadowPerformance.git

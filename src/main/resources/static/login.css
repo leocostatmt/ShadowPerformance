@@ -1,6 +1,5 @@
 /* Estilização Base */
-* 
-{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -14,14 +13,14 @@ body {
     min-height: 100vh;
     color: #fff;
     
-    /* Adicionando o Background */
-    background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop');
+    /* Background Automotivo / Motor */
+    background-image: url('images/civic-background.PNG');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
-/* Uma camada escura por cima da imagem inteira para o texto ficar legível (Opcional, mas recomendado) */
+/* Camada escura por cima da imagem inteira para o texto ficar legível */
 body::before {
     content: '';
     position: absolute;
@@ -29,34 +28,35 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Escurece a imagem de fundo em 60% */
+    background: rgba(0, 0, 0, 0.5); /* Escurecido um pouco mais para dar destaque ao vermelho */
     z-index: -1;
 }
 
 .auth-container {
-    /* Fundo preto semi-transparente (o 0.3 no final é a opacidade) */
-    background-color: rgba(30, 30, 30, 0.3); 
+    /* Fundo preto semi-transparente (Glassmorphism) */
+    background-color: rgba(20, 20, 20, 0.4); 
     
-    /* === A MÁGICA DO BLUR AQUI === */
-    -webkit-backdrop-filter: blur(12px); /* Para funcionar no Safari/iPhones */
+    /* A Mágica do Blur */
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px); 
-    /* ============================= */
 
     /* Borda sutil e brilhante para dar o efeito de vidro cortado */
     border: 1px solid rgba(255, 255, 255, 0.1); 
 
     padding: 40px;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); /* Sombra mais difusa */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     width: 100%;
     max-width: 400px;
     text-align: center;
 }
 
 .auth-container h2 {
-    color: #ff6b00; /* Laranja energia, combinando com a pegada de academia */
+    color: #e60000; /* Vermelho Racing */
     margin-bottom: 24px;
     font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .form-group {
@@ -68,13 +68,13 @@ body::before {
     display: block;
     margin-bottom: 6px;
     font-size: 14px;
-    color: #aaa;
+    color: #ccc;
 }
 
 .form-group input {
     width: 100%;
     padding: 12px;
-    background-color: #2a2a2a;
+    background-color: #1a1a1a;
     border: 1px solid #333;
     border-radius: 6px;
     color: #fff;
@@ -83,13 +83,13 @@ body::before {
 }
 
 .form-group input:focus {
-    border-color: #ff6b00;
+    border-color: #e60000; /* Borda vermelha ao focar */
 }
 
 .btn-submit {
     width: 100%;
     padding: 14px;
-    background-color: #ff6b00;
+    background-color: #cc0000; /* Vermelho escuro padrão */
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -97,11 +97,17 @@ body::before {
     font-weight: bold;
     cursor: pointer;
     margin-top: 10px;
-    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .btn-submit:hover {
-    background-color: #e65c00;
+    background-color: #e60000; /* Vermelho vibrante no hover */
+}
+
+.btn-submit:active {
+    transform: scale(0.98); /* Leve "afundada" ao clicar */
 }
 
 .toggle-link {
@@ -111,15 +117,16 @@ body::before {
 }
 
 .toggle-link a {
-    color: #ff6b00;
+    color: #e60000;
     text-decoration: none;
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 .toggle-link a:hover {
+    color: #ff3333;
     text-decoration: underline;
 }
-
 
 /* Posicionamento do ícone de senha */
 .password-wrapper {
@@ -139,7 +146,7 @@ body::before {
     right: 10px;
     background: transparent;
     border: none;
-    color: #aaa;
+    color: #888;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -147,9 +154,9 @@ body::before {
     transition: color 0.3s ease;
 }
 
-/* Fica laranja quando passa o mouse por cima */
+/* Fica vermelho quando passa o mouse por cima */
 .toggle-password:hover {
-    color: #ff6b00;
+    color: #e60000;
 }
 
 /* Animação de Fade-in para a troca de telas */
@@ -158,7 +165,7 @@ body::before {
 }
 
 .error-msg {
-    color: #ff4d4d; /* Vermelho alerta */
+    color: #ff4d4d; /* Vermelho claro para alertas de erro */
     font-size: 13px;
     margin-bottom: 12px;
     text-align: left;
@@ -173,7 +180,8 @@ body::before {
         opacity: 1; 
         transform: translateY(0); 
     }
-
 }
 
-.hidden { display: none; }
+.hidden { 
+    display: none; 
+}

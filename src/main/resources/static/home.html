@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olympus Pass | Home</title>
+    <title>Shadow sPerformance | Dashboard</title>
     <style>
-        /* Estilos reaproveitados e adaptados para o Dashboard */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background-color: #121212; color: #fff; }
         
-        /* Barra de Navegação */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1e1e1e;
+            background-color: #0a0a0a;
             padding: 16px 32px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border-bottom: 2px solid #e60000;
         }
-        .navbar h1 { color: #ff6b00; font-size: 24px; }
+        .navbar h1 { color: #fff; font-size: 24px; font-style: italic; }
+        .navbar h1 span { color: #e60000; }
+        
         .btn-logout {
             background-color: transparent;
             color: #aaa;
@@ -28,93 +28,113 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-logout:hover { color: #ff4d4d; border-color: #ff4d4d; }
+        .btn-logout:hover { color: #fff; border-color: #fff; }
 
-        /* Conteúdo Principal */
-        .dashboard-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .welcome-section { margin-bottom: 32px; }
+        .dashboard-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .welcome-section { margin-bottom: 40px; }
         .welcome-section h2 { font-size: 28px; margin-bottom: 8px; }
-        .welcome-section p { color: #aaa; }
-
-        /* Cards de Funcionalidades */
-        .cards-grid {
+        
+        /* Grid de Produtos */
+        .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
         }
-        .card {
-            background-color: #1e1e1e;
-            padding: 24px;
+        .product-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
             border-radius: 8px;
-            border-left: 4px solid #ff6b00;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
         }
-        .card h3 { margin-bottom: 12px; color: #ff6b00; }
-        .card p { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 16px; }
-        .btn-card {
+        .product-card:hover { transform: translateY(-5px); border-color: #e60000; }
+        .product-tag { 
+            display: inline-block; 
+            background: #e60000; 
+            color: white; 
+            font-size: 12px; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            margin-bottom: 12px;
+        }
+        .product-card h3 { color: #fff; margin-bottom: 10px; font-size: 18px; }
+        .product-card p { color: #888; font-size: 14px; margin-bottom: 20px; }
+        .price { font-size: 24px; font-weight: bold; color: #e60000; margin-bottom: 20px; }
+        
+        .btn-buy {
+            width: 100%;
             background-color: #333;
             color: #fff;
             border: none;
-            padding: 10px 16px;
+            padding: 12px;
             border-radius: 4px;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-card:hover { background-color: #ff6b00; }
+        .product-card:hover .btn-buy { background-color: #e60000; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <h1>Olympus Pass</h1>
-        <button id="logoutBtn" class="btn-logout">Sair</button>
+        <h1>Shadow<span>Performance</span></h1>
+        <button id="logoutBtn" class="btn-logout">Sair da Conta</button>
     </nav>
 
     <main class="dashboard-container">
         <section class="welcome-section">
-            <h2>Área do Aluno</h2>
-            <p>Selecione uma das opções abaixo para gerir o seu treino.</p>
+            <h2>Catálogo de Performance</h2>
+            <p>Faça o upgrade do seu projeto com as melhores peças do mercado.</p>
         </section>
 
-        <section class="cards-grid">
-            <div class="card">
-                <h3>O Meu Treino</h3>
-                <p>Visualize a sua ficha de exercícios do dia, marque as séries concluídas e acompanhe a sua evolução de cargas.</p>
-                <button class="btn-card">Aceder Ficha</button>
+        <section class="products-grid">
+            <div class="product-card">
+                <span class="product-tag">Iluminação</span>
+                <h3>Projetores de LED (Farol)</h3>
+                <p>Kit completo de projetores de LED adaptáveis para Honda Civic G8.</p>
+                <div class="price">R$ 450,00</div>
+                <button class="btn-buy">Adicionar ao Carrinho</button>
             </div>
             
-            <div class="card">
-                <h3>O Meu Plano</h3>
-                <p>O seu plano atual é o <strong>Passe Olimpo Pro</strong>. Faltam 15 dias para a renovação automática.</p>
-                <button class="btn-card">Gerir Assinatura</button>
+            <div class="product-card">
+                <span class="product-tag">Transmissão</span>
+                <h3>Embreagem de Cerâmica 400whp</h3>
+                <p>Kit embreagem de alta performance ideal para projetos turbo (VW Fusca motor a ar).</p>
+                <div class="price">R$ 1.280,00</div>
+                <button class="btn-buy">Adicionar ao Carrinho</button>
             </div>
             
-            <div class="card">
-                <h3>QR Code de Acesso</h3>
-                <p>Gere o código dinâmico para liberar a catraca na entrada da academia.</p>
-                <button class="btn-card">Gerar Código</button>
+            <div class="product-card">
+                <span class="product-tag">Estética & Handling</span>
+                <h3>Rodas de Liga Leve aro 17</h3>
+                <p>Jogo de rodas originais modelo Civic Si 2007. Furação 5x114.3.</p>
+                <div class="price">R$ 2.900,00</div>
+                <button class="btn-buy">Adicionar ao Carrinho</button>
+            </div>
+
+            <div class="product-card">
+                <span class="product-tag">Motorização</span>
+                <h3>Kit Turbo Corre Supra 1</h3>
+                <p>Kit completo de sobrealimentação e pressurização para o Corre Supra 1.</p>
+                <div class="price">R$ 4.500,00</div>
+                <button class="btn-buy">Adicionar ao Carrinho</button>
             </div>
         </section>
     </main>
 
     <script>
-        // Lógica simples de proteção da rota e logout na Home
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Verifica se o utilizador passou pelo Login
             const isAuth = localStorage.getItem('olympus_auth');
             if (!isAuth) {
-                // Se tentar aceder direto pela URL sem estar logado, é expulso
                 window.location.href = 'index.html'; 
             }
 
-            // 2. Lógica de Logout
             const logoutBtn = document.getElementById('logoutBtn');
             logoutBtn.addEventListener('click', () => {
-                localStorage.removeItem('olympus_auth'); // Remove a credencial
-                window.location.href = 'index.html'; // Volta para o login
+                localStorage.removeItem('olympus_auth'); 
+                window.location.href = 'index.html'; 
             });
         });
     </script>

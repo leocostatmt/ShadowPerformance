@@ -29,13 +29,13 @@ function switchView(viewToHide, viewToShow, newTitle) {
 // Ir para Cadastro
 showRegisterBtn.addEventListener('click', (event) => {
     event.preventDefault();
-    switchView(loginView, registerView, 'Novo Cadastro');
+    switchView(loginView, registerView, 'Novo piloto');
 });
 
 // Voltar para Login
 showLoginBtn.addEventListener('click', (event) => {
     event.preventDefault();
-    switchView(registerView, loginView, 'Olympus Pass');
+    switchView(registerView, loginView, 'Shadow Performance');
 });
 
 // ==========================================
@@ -108,7 +108,7 @@ registerForm.addEventListener('submit', (event) => {
         // Se correu bem, mostramos a mensagem do Java e reencaminhamos para o Login
         alert(mensagemSucesso);
         registerForm.reset(); // Limpa os campos do formulário
-        switchView(registerView, loginView, 'Olympus Pass'); // Volta para a tela de login
+        switchView(registerView, loginView, 'Shadow Performance'); // Volta para a tela de login
     })
     .catch(erro => {
         // Se deu erro (ex: servidor desligado ou email duplicado)
