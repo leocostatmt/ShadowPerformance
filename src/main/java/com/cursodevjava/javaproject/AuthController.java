@@ -53,7 +53,7 @@ public class AuthController {
         
         usuarioRepository.save(novoUsuario);
 
-        return ResponseEntity.ok("Cadastro bem-sucedido! Bem-vindo ao Olimpo, " + request.nome + "!");
+        return ResponseEntity.ok("Cadastro bem-sucedido! Bem-vindo á Shadow Performance, " + request.nome + "!");
     }
 
     @PostMapping("/login")

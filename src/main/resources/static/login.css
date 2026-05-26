@@ -14,7 +14,7 @@ body {
     color: #fff;
     
     /* Background Automotivo / Motor */
-    background-image: url('images/civic-background.PNG');
+    background-image: url('images/background-image6.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -28,7 +28,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Escurecido um pouco mais para dar destaque ao vermelho */
+    background: rgba(0, 0, 0, 0.4); /* Escurecido um pouco mais para dar destaque ao vermelho */
     z-index: -1;
 }
 
