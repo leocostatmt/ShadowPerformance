@@ -43,28 +43,29 @@ showLoginBtn.addEventListener('click', (event) => {
 // ==========================================
 
 registerForm.addEventListener('submit', (event) => {
-    event.preventDefault(); // Impede o envio para validar primeiro
+    event.preventDefault(); 
     
     const passwordValue = regPasswordInput.value;
     const confirmPasswordValue = confirmPasswordInput.value;
     
     let hasError = false;
 
-    // Regra 1: Tamanho mínimo (8) e pelo menos uma letra maiúscula
+    // Regra 1: Tamanho mínimo (8), uma letra maiúscula e um número
     const temTamanhoMinimo = passwordValue.length >= 8;
     const temLetraMaiuscula = /[A-Z]/.test(passwordValue);
+    const temNumero = /[0-9]/.test(passwordValue); 
     
-    if (!temTamanhoMinimo || !temLetraMaiuscula) {
-        regPasswordError.textContent = 'A senha deve ter no mínimo 8 caracteres e 1 letra maiúscula.';
+    if (!temTamanhoMinimo || !temLetraMaiuscula || !temNumero) {
+        regPasswordError.textContent = 'A senha deve ter no mínimo 8 caracteres, 1 maiúscula e 1 número.';
         regPasswordError.classList.remove('hidden');
-        regPasswordInput.style.borderColor = '#ff4d4d'; // Borda vermelha
+        regPasswordInput.style.borderColor = '#ff4d4d'; 
         hasError = true;
     } else {
         regPasswordError.classList.add('hidden');
-        regPasswordInput.style.borderColor = ''; // Remove o estilo inline para voltar ao CSS padrão
+        regPasswordInput.style.borderColor = ''; 
     }
 
-    // Regra 2: Confirmação de senha (devem ser idênticas)
+    // Regra 2: Confirmação de senha
     if (passwordValue !== confirmPasswordValue) {
         confirmError.textContent = 'As senhas não coincidem. Tente novamente.';
         confirmError.classList.remove('hidden');
@@ -75,29 +76,24 @@ registerForm.addEventListener('submit', (event) => {
         confirmPasswordInput.style.borderColor = '';
     }
 
-    // Se houver erros, interrompe a função aqui
     if (hasError) return;
     
-    // Se passar por todas as validações (substitua o código a partir daqui):
     console.log('Validação aprovada! A enviar dados para a API Java...');
     
-    // 1. Criamos um objeto com os nomes EXATAMENTE iguais ao da sua classe CadastroRequest no Java
     const dadosParaJava = {
         nome: document.getElementById('name').value,
-        email: regPasswordInput.form.querySelector('#reg-email').value, // ou document.getElementById('reg-email').value
-        senha: passwordValue // Variável que já validámos antes
+        email: regPasswordInput.form.querySelector('#reg-email').value, 
+        senha: passwordValue 
     };
 
-    // 2. Usamos o Fetch para enviar os dados para o Spring Boot (assumindo que o Java corre na porta 8080)
     fetch('http://localhost:8080/api/cadastro', {
-        method: 'POST', // Método de envio
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/json' // Dizemos ao Java que estamos a enviar um JSON
+            'Content-Type': 'application/json' 
         },
-        body: JSON.stringify(dadosParaJava) // Transformamos o objeto Javascript em texto JSON
+        body: JSON.stringify(dadosParaJava) 
     })
     .then(resposta => {
-        // Verifica se o Java devolveu sucesso (status 200 OK)
         if (resposta.ok) {
             return resposta.text();
         } else {
@@ -105,30 +101,59 @@ registerForm.addEventListener('submit', (event) => {
         }
     })
     .then(mensagemSucesso => {
-        // Se correu bem, mostramos a mensagem do Java e reencaminhamos para o Login
-        alert(mensagemSucesso);
-        registerForm.reset(); // Limpa os campos do formulário
-        switchView(registerView, loginView, 'Shadow Performance'); // Volta para a tela de login
+        // 1. Mapeia os elementos da tela de sucesso
+        const successView = document.getElementById('successView');
+        const successMessageText = document.getElementById('successMessageText');
+        const countdownElement = document.getElementById('countdown');
+
+        // 2. Oculta o formulário de cadastro e o título principal temporariamente
+        registerView.classList.add('hidden');
+        formTitle.classList.add('hidden');
+
+        // 3. Define o texto retornado pelo Java e mostra a tela de sucesso
+        successMessageText.textContent = mensagemSucesso;
+        successView.classList.remove('hidden');
+
+        // 4. Inicia a contagem regressiva de 3 segundos
+        let segundosRestantes = 3;
+        countdownElement.textContent = segundosRestantes;
+
+        const intervaloContagem = setInterval(() => {
+            segundosRestantes--;
+            countdownElement.textContent = segundosRestantes;
+
+            if (segundosRestantes <= 0) {
+                clearInterval(intervaloContagem); // Para o contador
+
+                // 5. Reseta os formulários e estados antigos
+                registerForm.reset();
+                document.getElementById('password-rules').style.display = 'none';
+                
+                // 6. Oculta a tela de sucesso e exibe os elementos padrões estruturais
+                successView.classList.add('hidden');
+                formTitle.classList.remove('hidden');
+                
+                // 7. Redireciona o piloto de volta para a tela de login
+                switchView(registerView, loginView, 'Shadow Performance');
+            }
+        }, 1000);
     })
     .catch(erro => {
-        // Se deu erro (ex: servidor desligado ou email duplicado)
         console.error('Erro na requisição:', erro);
         alert(erro.message);
     });
 });
 
 
-
-// 4. Blur background ao focar nos campos de senha
-
-
-// Capturando o formulário de Login
+// ==========================================
+// 4. LÓGICA DE LOGIN COM A API
+// ==========================================
 const loginForm = document.getElementById('loginForm');
 const loginEmailInput = document.getElementById('email');
 const loginPasswordInput = document.getElementById('password');
 
 loginForm.addEventListener('submit', (event) => {
-    event.preventDefault(); // Impede o recarregamento da página
+    event.preventDefault(); 
 
     const dadosLogin = {
         email: loginEmailInput.value,
@@ -148,17 +173,11 @@ loginForm.addEventListener('submit', (event) => {
         const mensagem = await resposta.text();
         
         if (resposta.ok) {
-            // Sucesso! O Java retornou status 200
-            alert(mensagem); // Mostra o "Bem-vindo de volta..."
-            
-            // Guarda no navegador que o utilizador está autenticado
+            alert(mensagem); 
             localStorage.setItem('olympus_auth', 'true');
-            
-            // Redireciona para a nova tela Home
             window.location.href = 'home.html';
         } else {
-            // Falha (senha errada ou e-mail não existe)
-            alert(mensagem); // Mostra o "Credenciais inválidas"
+            alert(mensagem); 
         }
     })
     .catch(erro => {
@@ -168,31 +187,71 @@ loginForm.addEventListener('submit', (event) => {
 });
 
 
-
 // ==========================================
 // 5. LÓGICA DE VISUALIZAR SENHA (ÍCONE DE OLHO)
 // ==========================================
-
-// Seleciona todos os botões de visualizar senha
 const togglePasswordBtns = document.querySelectorAll('.toggle-password');
 
-// Código dos SVGs para alternar
 const iconeOlhoAberto = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const iconeOlhoFechado = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
 
 togglePasswordBtns.forEach(btn => {
     btn.addEventListener('click', function() {
-        // Pega o ID do input correspondente através do atributo data-target do HTML
         const targetId = this.getAttribute('data-target');
         const inputElement = document.getElementById(targetId);
 
-        // Alterna entre password e text
         if (inputElement.type === 'password') {
             inputElement.type = 'text';
-            this.innerHTML = iconeOlhoAberto; // Muda para o ícone sem o risco
+            this.innerHTML = iconeOlhoAberto; 
         } else {
             inputElement.type = 'password';
-            this.innerHTML = iconeOlhoFechado; // Volta para o ícone com o risco
+            this.innerHTML = iconeOlhoFechado; 
         }
     });
+});
+
+
+// ==========================================
+// 6. VALIDAÇÃO DINÂMICA DA SENHA DE CADASTRO
+// ==========================================
+const passwordRulesDiv = document.getElementById('password-rules');
+const ruleLength = document.getElementById('rule-length');
+const ruleUppercase = document.getElementById('rule-uppercase');
+const ruleNumber = document.getElementById('rule-number');
+
+// Mostrar a caixa de regras apenas quando o utilizador clicar no campo de senha de cadastro
+regPasswordInput.addEventListener('focus', () => {
+    passwordRulesDiv.style.display = 'block';
+});
+
+// Evento 'input' dispara a cada tecla digitada
+regPasswordInput.addEventListener('input', () => {
+    const senhaDigitada = regPasswordInput.value;
+
+    // 1. Valida Tamanho (Mínimo 8)
+    if (senhaDigitada.length >= 8) {
+        ruleLength.classList.add('valid');
+        ruleLength.classList.remove('invalid');
+    } else {
+        ruleLength.classList.remove('valid');
+        ruleLength.classList.add('invalid');
+    }
+
+    // 2. Valida Letra Maiúscula
+    if (/[A-Z]/.test(senhaDigitada)) {
+        ruleUppercase.classList.add('valid');
+        ruleUppercase.classList.remove('invalid');
+    } else {
+        ruleUppercase.classList.remove('valid');
+        ruleUppercase.classList.add('invalid');
+    }
+
+    // 3. Valida Número
+    if (/[0-9]/.test(senhaDigitada)) {
+        ruleNumber.classList.add('valid');
+        ruleNumber.classList.remove('invalid');
+    } else {
+        ruleNumber.classList.remove('valid');
+        ruleNumber.classList.add('invalid');
+    }
 });

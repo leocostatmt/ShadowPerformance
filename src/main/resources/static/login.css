@@ -28,7 +28,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4); /* Escurecido um pouco mais para dar destaque ao vermelho */
+    background: rgba(0, 0, 0, 0.4); 
     z-index: -1;
 }
 
@@ -83,13 +83,13 @@ body::before {
 }
 
 .form-group input:focus {
-    border-color: #e60000; /* Borda vermelha ao focar */
+    border-color: #e60000; 
 }
 
 .btn-submit {
     width: 100%;
     padding: 14px;
-    background-color: #cc0000; /* Vermelho escuro padrão */
+    background-color: #cc0000; 
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -103,11 +103,11 @@ body::before {
 }
 
 .btn-submit:hover {
-    background-color: #e60000; /* Vermelho vibrante no hover */
+    background-color: #e60000; 
 }
 
 .btn-submit:active {
-    transform: scale(0.98); /* Leve "afundada" ao clicar */
+    transform: scale(0.98); 
 }
 
 .toggle-link {
@@ -137,7 +137,6 @@ body::before {
 
 .password-wrapper input {
     width: 100%;
-    /* Dá um espaço extra na direita para o texto não ficar por baixo do ícone */
     padding-right: 40px; 
 }
 
@@ -154,34 +153,127 @@ body::before {
     transition: color 0.3s ease;
 }
 
-/* Fica vermelho quando passa o mouse por cima */
 .toggle-password:hover {
     color: #e60000;
 }
 
-/* Animação de Fade-in para a troca de telas */
 .fade {
     animation: fadeIn 0.4s ease-in-out;
 }
 
 .error-msg {
-    color: #ff4d4d; /* Vermelho claro para alertas de erro */
+    color: #ff4d4d;
     font-size: 13px;
     margin-bottom: 12px;
     text-align: left;
 }
 
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-10px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .hidden { 
     display: none; 
+}
+
+/* ========================================== */
+/* VALIDAÇÃO DINÂMICA DE SENHA                */
+/* ========================================== */
+.password-rules {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: none; 
+}
+
+.password-rules p {
+    font-size: 12px;
+    color: #ccc;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.password-rules ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.password-rules li {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.password-rules li::before {
+    content: '✖';
+    margin-right: 8px;
+    color: #e60000;
+    font-size: 10px;
+}
+
+.password-rules li.valid {
+    color: #4CAF50; 
+}
+
+.password-rules li.valid::before {
+    content: '✔';
+    color: #4CAF50;
+    font-size: 12px;
+}
+
+/* ========================================== */
+/* TELA DE CONFIRMAÇÃO DE SUCESSO             */
+/* ========================================== */
+#successView {
+    padding: 20px 10px;
+    text-align: center;
+}
+
+.success-icon {
+    color: #4CAF50; 
+    margin-bottom: 16px;
+    display: inline-block;
+    animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#successView h3 {
+    color: #4CAF50;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+#successView p {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.redirect-box {
+    font-size: 13px;
+    color: #888;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#countdown {
+    color: #e60000; 
+    font-weight: bold;
+    font-size: 15px;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
