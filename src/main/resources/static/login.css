@@ -277,3 +277,23 @@ body::before {
     from { transform: scale(0); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* ========================================== */
+/* ESTILO: ESQUECI A SENHA                    */
+/* ========================================== */
+.forgot-password-link {
+    text-align: right;
+    margin-top: 8px;
+}
+
+.forgot-password-link a {
+    color: #aaa;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-link a:hover {
+    color: #e60000;
+    text-decoration: underline;
+}

@@ -151,6 +151,18 @@ registerForm.addEventListener('submit', (event) => {
 const loginForm = document.getElementById('loginForm');
 const loginEmailInput = document.getElementById('email');
 const loginPasswordInput = document.getElementById('password');
+const loginGlobalError = document.getElementById('loginGlobalError'); // Captura a nova mensagem
+
+// Função para limpar os erros visuais quando o piloto volta a digitar
+function clearLoginErrors() {
+    loginGlobalError.classList.add('hidden');
+    loginEmailInput.style.borderColor = '';
+    loginPasswordInput.style.borderColor = '';
+}
+
+// Ouve as digitações para limpar o erro
+loginEmailInput.addEventListener('input', clearLoginErrors);
+loginPasswordInput.addEventListener('input', clearLoginErrors);
 
 loginForm.addEventListener('submit', (event) => {
     event.preventDefault(); 
@@ -160,7 +172,10 @@ loginForm.addEventListener('submit', (event) => {
         senha: loginPasswordInput.value
     };
 
-    console.log('A tentar fazer login...');
+    // Altera o texto do botão para indicar carregamento
+    const btnSubmit = loginForm.querySelector('.btn-submit');
+    const textoOriginalBtn = btnSubmit.textContent;
+    btnSubmit.textContent = 'Acessando...';
 
     fetch('http://localhost:8080/api/login', {
         method: 'POST',
@@ -173,16 +188,27 @@ loginForm.addEventListener('submit', (event) => {
         const mensagem = await resposta.text();
         
         if (resposta.ok) {
-            alert(mensagem); 
+            // Sucesso absoluto, entra no sistema
             localStorage.setItem('olympus_auth', 'true');
             window.location.href = 'home.html';
         } else {
-            alert(mensagem); 
+            // FALHA: Mostra o erro dinâmico na tela
+            loginGlobalError.textContent = mensagem; // Recebe "Credenciais inválidas." do Java
+            loginGlobalError.classList.remove('hidden');
+            
+            // Pinta as bordas de vermelho
+            loginEmailInput.style.borderColor = '#ff4d4d';
+            loginPasswordInput.style.borderColor = '#ff4d4d';
+            
+            // Retorna o botão ao normal
+            btnSubmit.textContent = textoOriginalBtn;
         }
     })
     .catch(erro => {
         console.error('Erro de conexão:', erro);
-        alert('Erro ao tentar conectar com o servidor.');
+        loginGlobalError.textContent = 'Servidor offline ou erro de conexão.';
+        loginGlobalError.classList.remove('hidden');
+        btnSubmit.textContent = textoOriginalBtn;
     });
 });
 
@@ -254,4 +280,87 @@ regPasswordInput.addEventListener('input', () => {
         ruleNumber.classList.remove('valid');
         ruleNumber.classList.add('invalid');
     }
+});
+
+// ==========================================
+// 7. LÓGICA DE RECUPERAÇÃO DE SENHA
+// ==========================================
+
+// Elementos do DOM
+const recoverView = document.getElementById('recoverView');
+const showRecoverBtn = document.getElementById('showRecover');
+const showLoginFromRecoverBtn = document.getElementById('showLoginFromRecover');
+const recoverForm = document.getElementById('recoverForm');
+const recoverEmailInput = document.getElementById('recover-email');
+const recoverGlobalMessage = document.getElementById('recoverGlobalMessage');
+
+// Navegação: Ir para tela de Recuperação
+showRecoverBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    switchView(loginView, recoverView, 'Recuperar Acesso');
+    // Limpa mensagens anteriores
+    recoverGlobalMessage.classList.add('hidden');
+    recoverEmailInput.style.borderColor = '';
+    recoverEmailInput.value = '';
+});
+
+// Navegação: Voltar para o Login
+showLoginFromRecoverBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    switchView(recoverView, loginView, 'Shadow Performance');
+});
+
+// Limpar erros ao digitar no campo de email da recuperação
+recoverEmailInput.addEventListener('input', () => {
+    recoverGlobalMessage.classList.add('hidden');
+    recoverEmailInput.style.borderColor = '';
+});
+
+// Comunicação com o Java para envio do E-mail
+recoverForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    
+    const email = recoverEmailInput.value;
+    const btnSubmit = recoverForm.querySelector('.btn-submit');
+    const textoOriginalBtn = btnSubmit.textContent;
+    
+    btnSubmit.textContent = 'Enviando link...';
+    btnSubmit.disabled = true;
+
+    // Conectando com a futura rota no Spring Boot
+    fetch('http://localhost:8080/api/recuperar-senha', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(async resposta => {
+        const mensagem = await resposta.text();
+        btnSubmit.textContent = textoOriginalBtn;
+        btnSubmit.disabled = false;
+        
+        if (resposta.ok) {
+            // Sucesso: E-mail enviado
+            recoverGlobalMessage.textContent = "✅ Link de recuperação enviado! Verifique a sua caixa de entrada e a pasta de spam.";
+            recoverGlobalMessage.style.color = '#4CAF50'; // Verde sucesso
+            recoverGlobalMessage.classList.remove('hidden');
+            recoverEmailInput.value = ''; // Esvazia o campo
+        } else {
+            // Erro: E-mail não encontrado ou erro no servidor
+            recoverGlobalMessage.textContent = mensagem; // Recebe o erro do Java
+            recoverGlobalMessage.style.color = '#ff4d4d'; // Vermelho erro
+            recoverGlobalMessage.classList.remove('hidden');
+            recoverEmailInput.style.borderColor = '#ff4d4d';
+        }
+    })
+    .catch(erro => {
+        console.error('Erro de conexão:', erro);
+        btnSubmit.textContent = textoOriginalBtn;
+        btnSubmit.disabled = false;
+        
+        recoverGlobalMessage.textContent = 'Servidor offline ou erro de conexão.';
+        recoverGlobalMessage.style.color = '#ff4d4d';
+        recoverGlobalMessage.classList.remove('hidden');
+    });
 });
