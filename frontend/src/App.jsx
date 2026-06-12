@@ -244,7 +244,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
               {isLoading ? 'A Salvar...' : 'Salvar Nova Senha'}
             </button>
             <p className="text-center text-zinc-500 text-sm mt-6">
-              Lembrou-se da anterior? <button type="button" onClick={() => { window.history.replaceState({}, document.title, "/"); switchView('login', 'Shadow Performance'); }} className="text-white hover:text-red-500 font-bold ml-1 transition-colors">Voltar ao Login</button>
+              Lembrou da senha? <button type="button" onClick={() => { window.history.replaceState({}, document.title, "/"); switchView('login', 'Shadow Performance'); }} className="text-white hover:text-red-500 font-bold ml-1 transition-colors">Voltar ao Login</button>
             </p>
           </form>
         )}
@@ -302,11 +302,11 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 </button>
               </div>
               <div className="text-right mt-2">
-                <button type="button" onClick={() => switchView('recover', 'Recuperar Senha')} className="text-sm text-zinc-500 hover:text-red-500 transition-colors">Esqueceu-se da senha?</button>
+                <button type="button" onClick={() => switchView('recover', 'Recuperar Senha')} className="text-sm text-zinc-500 hover:text-red-500 transition-colors">Esqueceu sua senha?</button>
               </div>
             </div>
             <button type="submit" disabled={isLoading} className="w-full bg-red-600 text-white font-black uppercase tracking-widest py-4 hover:bg-red-700 transition-colors rounded mt-4 disabled:opacity-50">
-              {isLoading ? 'A Acessar...' : 'Acessar à Shadow'}
+              {isLoading ? 'A Acessar...' : 'Acessar à Garagem'}
             </button>
             <p className="text-center text-zinc-500 text-sm mt-6">
               Ainda não tem conta? <button type="button" onClick={() => switchView('register', 'Novo Piloto')} className="text-white hover:text-red-500 font-bold ml-1 transition-colors">Registe-se</button>
