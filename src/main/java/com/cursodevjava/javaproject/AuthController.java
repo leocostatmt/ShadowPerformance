@@ -12,7 +12,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") 
+// Atualizado para permitir especificamente a porta do React (Vite)
+@CrossOrigin(origins = "http://localhost:5173") 
 public class AuthController {
 
     @Autowired
@@ -118,8 +119,8 @@ public class AuthController {
         usuario.setTokenExpiracao(LocalDateTime.now().plusHours(1));
         usuarioRepository.save(usuario);
 
-        // Link que apontará para a tela no Front-end
-        String linkRedefinicao = "http://localhost:8080/reset.html?token=" + token;
+        // ATUALIZADO: Link que apontará para a tela no novo Front-end (React)
+        String linkRedefinicao = "http://localhost:5173/reset?token=" + token;
 
         try {
             SimpleMailMessage email = new SimpleMailMessage();
