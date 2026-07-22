@@ -1,4 +1,4 @@
-package com.cursodevjava.javaproject;
+package com.cursodevjava.javaproject.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

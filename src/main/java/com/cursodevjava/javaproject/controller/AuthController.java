@@ -1,4 +1,4 @@
-package com.cursodevjava.javaproject;
+package com.cursodevjava.javaproject.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -6,6 +6,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import com.cursodevjava.javaproject.model.Usuario;
+import com.cursodevjava.javaproject.repository.UsuarioRepository;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;

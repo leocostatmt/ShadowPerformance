@@ -348,17 +348,9 @@ const AuthScreen = ({ onLoginSuccess }) => {
   );
 };
 
-
 // ==========================================
 // 2. NOVO ECRÃ HOME (MARKETPLACE)
 // ==========================================
-
-const TRENDING_PRODUCTS = [
-  { id: 'prod-1', name: 'Kit Embreagem Cerâmica 400whp', brand: 'SHADOW', price: 1850.00, oldPrice: 2100.00, image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=600', isNew: true },
-  { id: 'prod-2', name: 'Jogo de Rodas Civic Si 2007 Aro 17', brand: 'HONDA OEM', price: 3500.00, image: 'https://images.unsplash.com/photo-1600705722908-bab1e61c0b4d?auto=format&fit=crop&q=80&w=600', isNew: false },
-  { id: 'prod-3', name: 'Projetores LED H4 Alta Intensidade', brand: 'LUMEN', price: 450.00, oldPrice: 580.00, image: 'https://images.unsplash.com/photo-1620541604516-160df646fc89?auto=format&fit=crop&q=80&w=600', isNew: true },
-  { id: 'prod-4', name: 'Escape Inox 3 Polegadas', brand: 'SHADOW', price: 1850.00, image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80&w=600', isNew: false }
-];
 
 const CATEGORIES = ['Motor a Ar', 'Suspensão', 'Iluminação', 'Freios', 'Interior', 'Rodas'];
 
@@ -368,17 +360,64 @@ const ShadowPerformanceHome = ({ onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // ESTADOS DA API
+  const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [apiError, setApiError] = useState(false);
+  
+  const [toast, setToast] = useState({ show: false, productName: '' });
 
-  // 1. EFEITO PARA TRAVAR O SCROLL DA PÁGINA QUANDO O CARRINHO ABRIR
+  // Buscar produtos do backend Java
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoadingProducts(true);
+        const response = await fetch('http://localhost:8080/api/produtos', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+          setApiError(false);
+        } else {
+          console.error("Erro na resposta da API");
+          setApiError(true);
+        }
+      } catch (error) {
+        console.error("Erro ao conectar com o servidor Java:", error);
+        setApiError(true);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Travar o scroll quando menu ou carrinho abrem
   useEffect(() => {
     if (isCartOpen || isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    // Limpeza caso o componente seja desmontado
     return () => { document.body.style.overflow = ''; };
   }, [isCartOpen, isMenuOpen]);
+
+  // Esconder o Toast após 5 segundos
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => {
+        setToast({ show: false, productName: '' });
+      }, 5000);
+      return () => clearTimeout(timer); 
+    }
+  }, [toast.show]);
 
   const addToCart = (product) => {
     setCartItems(prev => {
@@ -386,54 +425,70 @@ const ShadowPerformanceHome = ({ onLogout }) => {
       if (exists) return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
       return [...prev, { ...product, quantity: 1 }];
     });
-    setIsCartOpen(true);
+    setToast({ show: true, productName: product.name });
   };
 
   const removeFromCart = (productId) => {
     setCartItems(prev => prev.filter(i => i.id !== productId));
   };
 
+  const updateQuantity = (productId, delta) => {
+    setCartItems(prev => prev.map(item => {
+      if (item.id === productId) {
+        const newQuantity = item.quantity + delta;
+        // Só atualiza se a nova quantidade for maior ou igual a 1
+        if (newQuantity >= 1) {
+          return { ...item, quantity: newQuantity };
+        }
+      }
+      return item;
+    }));
+  };
+
   const cartTotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   return (
-    // 2. REMOVIDO O 'overflow-x-hidden' e 'relative' DA RAIZ
-    <div className="min-h-screen bg-black font-sans selection:bg-red-600 selection:text-white">
+    <div className="min-h-screen bg-black font-sans selection:bg-red-600 selection:text-white relative">
       
-      {/* ========================================================= */}
-      {/* ELEMENTOS FIXOS (Fora do container principal de conteúdo) */}
-      {/* ========================================================= */}
+      {/* TOAST DE NOTIFICAÇÃO */}
+      <div className={`fixed bottom-6 right-6 z-[80] transition-all duration-500 transform ${toast.show ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
+        <div className="bg-zinc-900 border border-zinc-800 shadow-2xl p-4 rounded flex items-center gap-4">
+          <div className="bg-red-600/20 p-2 rounded-full">
+            <CheckCircle2 className="w-5 h-5 text-red-500" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm uppercase tracking-wider">Adicionado à Garagem</p>
+            <p className="text-zinc-400 text-xs mt-0.5 truncate max-w-[200px]">{toast.productName}</p>
+          </div>
+          <button onClick={() => setIsCartOpen(true)} className="ml-4 text-xs font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors">
+            Ver
+          </button>
+        </div>
+      </div>
 
-      {/* BARRA DE NAVEGAÇÃO FIXA */}
+      {/* NAVBAR FIXA */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-black/85 backdrop-blur-md border-b border-zinc-900 text-white transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 bg-transparent">
           <div className="flex justify-between items-center h-20">
-            
-            {/* Esquerda: Menu Mobile e Logo */}
             <div className="flex items-center gap-4">
               <button onClick={() => setIsMenuOpen(true)} className="text-zinc-400 hover:text-white transition-colors md:hidden p-1">
                 <Menu className="h-6 w-6" />
               </button>
-              
               <div className="flex-shrink-0 flex items-center cursor-pointer">
-                <span className="font-black text-xl md:text-2xl tracking-tighter">
-                  SHADOW<span className="text-red-600">PERFORMANCE</span>
-                </span>
+                <span className="font-black text-xl md:text-2xl tracking-tighter">SHADOW<span className="text-red-600">PERFORMANCE</span></span>
               </div>
             </div>
             
-            {/* Centro: Links */}
             <div className="hidden md:flex space-x-8">
               <a href="#catalogo" className="text-sm font-bold uppercase tracking-widest hover:text-red-600 transition-colors">Shop</a>
               <a href="#" className="text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Projetos</a>
               <a href="#" className="text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Sobre</a>
             </div>
 
-            {/* Direita: Busca, Carrinho e Logout */}
             <div className="flex items-center space-x-2 md:space-x-6">
               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 transition-colors ${isSearchOpen ? 'text-red-600' : 'text-zinc-400 hover:text-white'}`}>
                 <Search className="h-5 w-5 md:h-6 md:w-6" />
               </button>
-
               <button onClick={() => setIsCartOpen(true)} className="text-zinc-400 hover:text-white p-2 relative transition-colors">
                 <ShoppingCart className="h-5 w-5 md:h-6 md:w-6" />
                 {cartItems.length > 0 && (
@@ -442,7 +497,6 @@ const ShadowPerformanceHome = ({ onLogout }) => {
                   </span>
                 )}
               </button>
-              
               <button onClick={onLogout} className="bg-zinc-900 border border-zinc-800 text-zinc-300 hover:bg-red-600 hover:text-white hover:border-red-600 px-3 py-2 md:px-4 rounded flex items-center gap-2 group transition-all">
                 <LogOut className="h-4 w-4" />
                 <span className="text-sm font-bold uppercase tracking-widest hidden sm:block">Sair</span>
@@ -451,7 +505,7 @@ const ShadowPerformanceHome = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* BARRA DE PESQUISA */}
+        {/* BARRA DE PESQUISA RETRÁTIL */}
         <div className={`absolute top-full left-0 w-full bg-zinc-950 border-b border-zinc-900 transition-all duration-300 ease-in-out overflow-hidden ${isSearchOpen ? 'h-20 opacity-100' : 'h-0 opacity-0 border-transparent'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
             <Search className="w-5 h-5 text-zinc-600 mr-4" />
@@ -499,6 +553,8 @@ const ShadowPerformanceHome = ({ onLogout }) => {
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Sua Garagem</h2>
               <button onClick={() => setIsCartOpen(false)} className="text-zinc-500 hover:text-white"><X className="w-6 h-6" /></button>
             </div>
+
+            {/* ITENS DO CARRINHO */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {cartItems.length === 0 ? (
                 <p className="text-zinc-500 text-center mt-10">Seu carrinho está vazio.</p>
@@ -506,16 +562,39 @@ const ShadowPerformanceHome = ({ onLogout }) => {
                 cartItems.map(item => (
                   <div key={item.id} className="flex gap-4 items-center bg-black p-3 border border-zinc-900 rounded">
                     <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded bg-zinc-900" />
-                    <div className="flex-1">
-                      <h4 className="text-white text-sm font-bold leading-tight">{item.name}</h4>
-                      <p className="text-zinc-500 text-xs mt-1">Qtd: {item.quantity}</p>
-                      <p className="text-red-500 font-bold mt-1">R$ {(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
+            <div className="flex-1">
+                <h4 className="text-white text-sm font-bold leading-tight line-clamp-2">{item.name}</h4>
+  
+                  {/* CONTROLES DE QUANTIDADE */}
+                    <div className="flex items-center gap-3 mt-2 mb-1">
+                    <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded">
+                    <button 
+                        onClick={() => updateQuantity(item.id, -1)} 
+                        className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors rounded-l"
+                    >
+                    <Minus className="w-3 h-3" />
+                    </button>
+      
+                    <span className="text-white text-xs font-bold w-6 text-center select-none">
+                      {item.quantity}
+                    </span>
+      
+                    <button 
+                      onClick={() => updateQuantity(item.id, 1)} 
+                      className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors rounded-r"
+                    >
+                    <Plus className="w-3 h-3" />
+                      </button>
+                </div>
+          </div>
+
+          <p className="text-red-500 font-bold text-sm">R$ {(item.price * item.quantity).toFixed(2)}</p>
+        </div>
                     <button onClick={() => removeFromCart(item.id)} className="text-zinc-600 hover:text-red-500 p-2"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 ))
               )}
-            </div>
+        </div>
             {cartItems.length > 0 && (
               <div className="p-6 border-t border-zinc-900 bg-black">
                 <div className="flex justify-between items-center mb-4 text-white">
@@ -531,12 +610,8 @@ const ShadowPerformanceHome = ({ onLogout }) => {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* CONTEÚDO DA PÁGINA (Isolado com overflow oculto)          */}
-      {/* ========================================================= */}
+      {/* CONTEÚDO PRINCIPAL DA PÁGINA */}
       <main className="relative overflow-x-hidden">
-        
-        {/* HERO SECTION */}
         <section className="relative w-full h-screen flex items-center justify-center pt-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&q=80&w=1920" alt="Performance Car" className="w-full h-full object-cover opacity-40" />
@@ -556,7 +631,6 @@ const ShadowPerformanceHome = ({ onLogout }) => {
           </div>
         </section>
 
-        {/* BARRA DE CATEGORIAS */}
         <div className="bg-zinc-950 border-y border-zinc-900 py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex space-x-8 overflow-x-auto pb-2 scrollbar-hide text-sm font-bold uppercase tracking-wider text-zinc-500 justify-start md:justify-center">
@@ -567,7 +641,6 @@ const ShadowPerformanceHome = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* SECÇÃO DE LOJA */}
         <section id="catalogo" className="bg-black py-24 px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-zinc-900 pb-6">
@@ -579,33 +652,50 @@ const ShadowPerformanceHome = ({ onLogout }) => {
                 Ver Catálogo Completo <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {TRENDING_PRODUCTS.map((product) => (
-                <div key={product.id} className="group flex flex-col bg-black border border-zinc-900 rounded hover:border-zinc-700 transition-colors relative">
-                  {product.isNew && <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded">Novo</span>}
-                  <div className="relative aspect-square overflow-hidden bg-zinc-950 rounded-t p-6 flex items-center justify-center">
-                    <img src={product.image} alt={product.name} className="object-cover w-full h-full opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mix-blend-lighten" />
-                  </div>
-                  <div className="flex flex-col flex-grow p-5 border-t border-zinc-900">
-                    <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">{product.brand}</span>
-                    <h3 className="text-white font-bold text-base leading-tight mb-3 group-hover:text-red-500 transition-colors line-clamp-2 min-h-[40px]">{product.name}</h3>
-                    <div className="mt-auto flex items-end justify-between mb-4">
-                      <div>
-                        {product.oldPrice && <span className="block text-zinc-600 line-through text-xs mb-0.5">R$ {product.oldPrice.toFixed(2)}</span>}
-                        <span className="text-xl font-black text-white">R$ {product.price.toFixed(2)}</span>
-                      </div>
+            
+            {/* RENDERIZAÇÃO CONDICIONAL DO GRID DE PRODUTOS */}
+            {isLoadingProducts ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+              </div>
+            ) : apiError ? (
+              <div className="text-center py-20 bg-zinc-900 border border-zinc-800 rounded">
+                <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
+                <h3 className="text-white font-bold uppercase tracking-wider mb-2">Erro de Conexão</h3>
+                <p className="text-zinc-500 text-sm">Não foi possível carregar os produtos. Verifique se o servidor Java está rodando e aceitando requisições (CORS).</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-20 text-zinc-500">
+                Nenhum produto cadastrado no momento.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {products.map((product) => (
+                  <div key={product.id} className="group flex flex-col bg-black border border-zinc-900 rounded hover:border-zinc-700 transition-colors relative">
+                    {product.isNew && <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded">Novo</span>}
+                    <div className="relative aspect-square overflow-hidden bg-zinc-950 rounded-t p-6 flex items-center justify-center">
+                      <img src={product.image || 'https://via.placeholder.com/600x600/18181b/ffffff?text=Sem+Imagem'} alt={product.name} className="object-cover w-full h-full opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mix-blend-lighten" />
                     </div>
-                    <button onClick={() => addToCart(product)} className="w-full bg-zinc-900 border border-zinc-800 hover:bg-red-600 hover:border-red-600 text-white font-bold py-3 rounded transition-all uppercase tracking-wider text-sm">
-                      Adicionar
-                    </button>
+                    <div className="flex flex-col flex-grow p-5 border-t border-zinc-900">
+                      <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">{product.brand || 'Marca não informada'}</span>
+                      <h3 className="text-white font-bold text-base leading-tight mb-3 group-hover:text-red-500 transition-colors line-clamp-2 min-h-[40px]">{product.name}</h3>
+                      <div className="mt-auto flex items-end justify-between mb-4">
+                        <div>
+                          {product.oldPrice && <span className="block text-zinc-600 line-through text-xs mb-0.5">R$ {Number(product.oldPrice).toFixed(2)}</span>}
+                          <span className="text-xl font-black text-white">R$ {Number(product.price).toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => addToCart(product)} className="w-full bg-zinc-900 border border-zinc-800 hover:bg-red-600 hover:border-red-600 text-white font-bold py-3 rounded transition-all uppercase tracking-wider text-sm">
+                        Adicionar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
-        {/* LIFESTYLE */}
         <section className="border-t border-zinc-900 bg-zinc-950 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="p-12 md:p-24 flex flex-col justify-center">
@@ -624,7 +714,6 @@ const ShadowPerformanceHome = ({ onLogout }) => {
           </div>
         </section>
 
-        {/* FOOTER */}
         <footer className="bg-black border-t border-zinc-900 pt-20 pb-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
@@ -658,7 +747,6 @@ const ShadowPerformanceHome = ({ onLogout }) => {
             </div>
           </div>
         </footer>
-
       </main>
     </div>
   );
