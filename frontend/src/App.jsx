@@ -288,7 +288,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
               {isLoading ? 'A Acessar...' : 'Acessar à Garagem'}
             </button>
             <p className="text-center text-zinc-500 text-sm mt-6">
-              Ainda não tem conta? <button type="button" onClick={() => switchView('register', 'Novo Piloto')} className="text-white hover:text-red-500 font-bold ml-1 transition-colors">Registe-se</button>
+              Ainda não tem conta? <button type="button" onClick={() => switchView('register', 'Novo Piloto')} className="text-white hover:text-red-500 font-bold ml-1 transition-colors">Registre-se</button>
             </p>
           </form>
         )}
